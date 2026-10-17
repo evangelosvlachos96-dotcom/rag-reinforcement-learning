@@ -2,6 +2,8 @@
 
 Multi-armed bandits that learn which RAG retrieval configuration to use, rewarded by the retrieval metrics of the [agentic-rag-eval-platform](https://github.com/evangelosvlachos96-dotcom/agentic-rag-eval-platform) library.
 
+**Project page:** https://evangelosvlachos96-dotcom.github.io/rag-reinforcement-learning/
+
 A RAG system has knobs that change answer quality: how the corpus is chunked and how many chunks reach the generator. Choosing them by hand means guessing or running a full grid. This project treats the choice as a reinforcement learning problem. Each configuration is an *arm*, retrieval quality on a query is the *reward*, and a bandit policy learns which arm to favour while still exploring the others.
 
 ## Why this is reinforcement learning
@@ -21,6 +23,8 @@ It is the simplest RL setting: a stateless bandit. An agent picks an action, rec
 Tests cover the arms, the policies, the reward function and the simulation helpers (22 tests).
 
 ## Results
+
+The results, with charts, are also on the project page: https://evangelosvlachos96-dotcom.github.io/rag-reinforcement-learning/
 
 The reward is nDCG@k on the 20 answerable questions of the RAG repo's `v1` eval set, using BM25 retrieval over the pinned PEP corpus (56 documents). Each cell is the mean over those 20 queries.
 
@@ -90,6 +94,10 @@ tests/               unit tests for each module
 results/             rewards.json, simulation.json, regret.png, arm_rewards.png
 docs/                GitHub Pages site
 ```
+
+## Project page
+
+A summary of the problem, reward table, learning curves and caveats is published at https://evangelosvlachos96-dotcom.github.io/rag-reinforcement-learning/ (served from the `docs/` folder).
 
 ## Dependencies
 
