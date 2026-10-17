@@ -1,0 +1,67 @@
+{
+  "rounds": 500,
+  "runs": 200,
+  "split_seed": 0,
+  "train_queries": 10,
+  "test_queries": 10,
+  "best_fixed_arm_train": "chunk800_k16",
+  "best_fixed_arm_test": "chunk800_k16",
+  "policies": {
+    "random": {
+      "mean_cumulative_regret": 33.67355916584653,
+      "std_cumulative_regret": 0.9606654697014746,
+      "most_common_final_arm": "chunk800_k16",
+      "final_arm_share": 0.425,
+      "held_out_mean_nDCG_of_final_arm": 0.29730116228937875
+    },
+    "epsilon_greedy_0.1": {
+      "mean_cumulative_regret": 14.250948485814273,
+      "std_cumulative_regret": 9.223521995377384,
+      "most_common_final_arm": "chunk800_k16",
+      "final_arm_share": 0.525,
+      "held_out_mean_nDCG_of_final_arm": 0.3049074501041483
+    },
+    "ucb1": {
+      "mean_cumulative_regret": 29.77300139803232,
+      "std_cumulative_regret": 1.3345390432372894,
+      "most_common_final_arm": "chunk800_k16",
+      "final_arm_share": 0.54,
+      "held_out_mean_nDCG_of_final_arm": 0.3049972955277923
+    }
+  },
+  "best_vs_runner_up": {
+    "best_arm": "chunk800_k16",
+    "runner_up_arm": "chunk400_k16",
+    "mean_gap": 0.021879700392504958,
+    "ci95_low": -0.017838143105229503,
+    "ci95_high": 0.06459239046920587,
+    "resamples": 10000,
+    "n_queries": 20
+  },
+  "held_out_mean_nDCG_random_arm": 0.2533333154613281,
+  "held_out_mean_nDCG_best_arm": 0.3226484616325529,
+  "train_mean_nDCG_per_arm": {
+    "chunk200_k4": 0.3906896791497555,
+    "chunk200_k8": 0.39386999631736547,
+    "chunk200_k16": 0.4317457621283225,
+    "chunk400_k4": 0.45489130342527184,
+    "chunk400_k8": 0.4709568612531977,
+    "chunk400_k16": 0.5065882082712816,
+    "chunk800_k4": 0.4127428623725751,
+    "chunk800_k8": 0.46018240492643436,
+    "chunk800_k16": 0.515881206973814
+  },
+  "test_mean_nDCG_per_arm": {
+    "chunk200_k4": 0.14692787260227563,
+    "chunk200_k8": 0.20852877214204413,
+    "chunk200_k16": 0.22339261204486763,
+    "chunk400_k4": 0.2625866583069444,
+    "chunk400_k8": 0.28818205955007536,
+    "chunk400_k16": 0.28818205955007536,
+    "chunk800_k4": 0.24392669713329668,
+    "chunk800_k8": 0.2956246461898209,
+    "chunk800_k16": 0.3226484616325529
+  },
+  "generated_at_utc": "2026-10-17T14:17:03+00:00",
+  "rewards_file": "results/rewards.json"
+}
