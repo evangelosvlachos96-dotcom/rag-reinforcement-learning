@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rag-reinforcement-learning</title>
+<meta name="description" content="Multi-armed bandits that learn which RAG retrieval configuration to use, rewarded by retrieval evaluation metrics.">
+<style>
+  :root { --ink:#1d2330; --muted:#5b6475; --line:#e3e7ef; --accent:#2f6fde; --bg:#ffffff; --panel:#f6f8fc; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8ecf4; --muted:#a2acbe; --line:#2b3344; --accent:#7aa7ff; --bg:#12151c; --panel:#1a1f2b; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--ink); background:var(--bg); }
+  main { max-width: 860px; margin: 0 auto; padding: 48px 20px 80px; }
+  h1 { font-size: 2.1rem; margin: 0 0 8px; letter-spacing: -0.01em; }
+  h2 { font-size: 1.35rem; margin: 48px 0 12px; }
+  p.lead { font-size: 1.15rem; color: var(--muted); margin: 0 0 20px; }
+  a { color: var(--accent); }
+  .badges a { display:inline-block; margin: 0 10px 8px 0; padding: 6px 12px; border:1px solid var(--line); border-radius: 999px; text-decoration:none; font-size: 0.9rem; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 8px; font-size: 0.95rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .best { font-weight: 700; color: var(--accent); }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .caveat { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; margin: 12px 0; color: var(--muted); }
+  figure { margin: 20px 0; }
+  figure img { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; background:#fff; }
+  figcaption { color: var(--muted); font-size: 0.9rem; margin-top: 6px; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.9em; background: var(--panel); padding: 1px 5px; border-radius: 4px; }
+  pre { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; overflow-x: auto; font-size: 0.9rem; }
+  footer { margin-top: 56px; color: var(--muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>rag-reinforcement-learning</h1>
+  <p class="lead">Multi-armed bandits that learn which RAG retrieval configuration to use, rewarded by the retrieval metrics of the agentic-rag-eval-platform library.</p>
+
+  <div class="badges">
+    <a href="https://github.com/evangelosvlachos96-dotcom/rag-reinforcement-learning">Source code</a>
+    <a href="https://github.com/evangelosvlachos96-dotcom/agentic-rag-eval-platform">RAG library</a>
+  </div>
+
+  <h2>The problem</h2>
+  <p>A RAG system has settings that change answer quality: how the corpus is chunked, and how many retrieved chunks reach the generator. Choosing them by hand means guessing or running a full grid. Here each combination is an <em>arm</em> of a bandit, the retrieval quality (nDCG@k) on a query is the <em>reward</em>, and a policy learns which arm to favour while still exploring the rest. This is the simplest reinforcement learning setting: a stateless bandit.</p>
+
+  <h2>Setup</h2>
+  <div class="panel">
+    <p style="margin:0"><strong>9 arms:</strong> chunk size 200, 400 or 800 tokens, crossed with context size k = 4, 8 or 16.<br>
+    <strong>Reward:</strong> binary-relevance nDCG@k on the 20 answerable questions of the RAG library's v1 eval set, using BM25 retrieval over the pinned PEP corpus (56 documents).<br>
+    <strong>Policies:</strong> random baseline, epsilon-greedy (ε = 0.1), and UCB1, all implemented from scratch.</p>
+  </div>
+
+  <h2>Rewards per arm</h2>
+  <p>Mean nDCG over the 20 queries. The best arm is highlighted.</p>
+  <table>
+    <thead><tr><th>chunk size</th><th class="num">k = 4</th><th class="num">k = 8</th><th class="num">k = 16</th></tr></thead>
+    <tbody>
+      <tr><td>200 tokens</td><td class="num">0.269</td><td class="num">0.301</td><td class="num">0.328</td></tr>
+      <tr><td>400 tokens</td><td class="num">0.359</td><td class="num">0.380</td><td class="num">0.397</td></tr>
+      <tr><td>800 tokens</td><td class="num">0.328</td><td class="num">0.378</td><td class="num best">0.419</td></tr>
+    </tbody>
+  </table>
+  <p>The 400-token, k = 8 value (0.380) matches the nDCG@8 the RAG library reports for its own BM25 run, so the reward pipeline agrees with the library.</p>
+
+  <h2>Learning curves</h2>
+  <p>Simulation: 500 rounds, 200 seeded runs per policy. Regret is measured against the best fixed arm.</p>
+  <table>
+    <thead><tr><th>policy</th><th class="num">mean cumulative regret</th><th class="num">most common final arm (share of runs)</th></tr></thead>
+    <tbody>
+      <tr><td>random</td><td class="num">33.7 ± 1.0</td><td class="num">chunk800_k16 (42%)</td></tr>
+      <tr><td>epsilon-greedy (ε = 0.1)</td><td class="num">14.3 ± 9.2</td><td class="num">chunk800_k16 (53%)</td></tr>
+      <tr><td>UCB1</td><td class="num">29.8 ± 1.3</td><td class="num">chunk800_k16 (54%)</td></tr>
+    </tbody>
+  </table>
+  <figure>
+    <img src="images/regret.png" alt="Cumulative regret over rounds for three policies">
+    <figcaption>Cumulative expected regret. Epsilon-greedy learns fastest here. UCB1 explores longer because its bonus assumes rewards across [0, 1], while the gaps between these arms are 0.02 to 0.05.</figcaption>
+  </figure>
+  <figure>
+    <img src="images/arm_rewards.png" alt="Mean reward of each arm">
+    <figcaption>Mean nDCG of each arm on the training queries.</figcaption>
+  </figure>
+
+  <h2>What the results do not show</h2>
+  <div class="caveat"><strong>The best arm is not statistically established.</strong> chunk800_k16 leads the runner-up by 0.022 nDCG. A paired bootstrap over the 20 queries gives a 95% interval of −0.018 to +0.065, which includes zero.</div>
+  <div class="caveat"><strong>The held-out check is small.</strong> Ten training and ten test queries. The policies picked the same arm that was best on the test half, but that is too few queries to say much.</div>
+  <div class="caveat"><strong>The reward measures retrieval, not answers.</strong> nDCG@k favours larger k by construction. Answer faithfulness, generation cost and latency are not measured.</div>
+  <div class="caveat"><strong>No vector or hybrid arms.</strong> Those need an embedding model download that was not reachable where this was built, so every arm is BM25.</div>
+
+  <h2>Reproduce</h2>
+  <pre><code>git clone https://github.com/evangelosvlachos96-dotcom/agentic-rag-eval-platform ../agentic-rag-eval-platform
+(cd ../agentic-rag-eval-platform &amp;&amp; uv run rag download-corpus)
+uv sync --extra dev
+uv run rl-rag-build-rewards --rag-root ../agentic-rag-eval-platform
+uv run rl-rag-simulate
+uv run pytest</code></pre>
+  <p>Full details, including the design and next steps, are in the <a href="https://github.com/evangelosvlachos96-dotcom/rag-reinforcement-learning#readme">README</a>.</p>
+
+  <footer>Built by Evangelos Vlachos. MIT licensed.</footer>
+</main>
+</body>
+</html>
