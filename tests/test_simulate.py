@@ -1,7 +1,7 @@
 import numpy as np
 
-from rl_rag.simulate import greedy_arm, paired_bootstrap_gap, run_policy, split_queries
 from rl_rag.bandits import EpsilonGreedy
+from rl_rag.simulate import greedy_arm, paired_bootstrap_gap, run_policy, split_queries
 
 
 def test_split_is_a_partition_of_the_queries() -> None:
